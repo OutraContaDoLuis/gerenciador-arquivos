@@ -5,11 +5,14 @@ import android.os.Build.VERSION
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.widget.AdapterView
 import android.widget.GridView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.luis.gerenciadordearquivos.models.FileViewModel
 import java.io.File
 
 class HomeActivity : AppCompatActivity() {
@@ -18,6 +21,9 @@ class HomeActivity : AppCompatActivity() {
     private var gridListFilesAdapter: GridListFilesAdapter? = null
 
     private var storageDirectory : File? = null
+    private var currentFile: File? = null
+    private var currentListFileViewModel : ArrayList<FileViewModel?>? = ArrayList()
+    private var fileHistory: ArrayList<File?>? = ArrayList()
 
     private val tag = javaClass.name
 
@@ -34,22 +40,56 @@ class HomeActivity : AppCompatActivity() {
         gridFiles = findViewById(R.id.grid_files)
 
         storageDirectory = Environment.getExternalStorageDirectory()
+        currentFile = storageDirectory
+        fileHistory?.add(currentFile)
         Log.v(tag, "Root directory: ${storageDirectory.toString()}")
         Log.v(tag, "Files in root directory: ${storageDirectory?.listFiles()}")
     }
 
-    private fun getAllTheDirectoriesFromRootDirectory() {
-        val listOfFileFromStorageDirectory = storageDirectory?.listFiles()
-        listOfFileFromStorageDirectory?.forEach { it ->
-            Log.v(tag, it.toString())
+    private fun setTheGridViewOfCurrentFiles() {
+        gridListFilesAdapter = GridListFilesAdapter(this, currentListFileViewModel)
+        gridFiles.adapter = gridListFilesAdapter
+
+        gridFiles.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            currentFile = if (currentListFileViewModel!![position]!!.goBack) {
+                fileHistory!!.removeAt(fileHistory!!.size - 1)
+                fileHistory!![fileHistory!!.size - 1]
+            } else {
+                fileHistory?.add(currentListFileViewModel!![position]?.file)
+                currentListFileViewModel!![position]?.file
+            }
+            Log.v(tag, fileHistory.toString())
+
+            currentFile?.listFiles()?.forEach { it ->
+                Log.v(tag, it.toString())
+            }
+
+            setCurrentArrayListFileViewModel()
+        }
+    }
+
+    private fun setCurrentArrayListFileViewModel() {
+        currentListFileViewModel = ArrayList()
+        if (currentFile != storageDirectory) {
+            val fileViewModelGoBack = FileViewModel()
+            fileViewModelGoBack.name = "..."
+            fileViewModelGoBack.goBack = true
+
+            currentListFileViewModel?.add(fileViewModelGoBack)
         }
 
-        gridListFilesAdapter = GridListFilesAdapter(this, listOfFileFromStorageDirectory)
-        gridFiles.adapter = gridListFilesAdapter
+        currentFile?.listFiles()?.forEach {it ->
+            var fileViewModel = FileViewModel()
+            fileViewModel.name = it.name
+            fileViewModel.file = it
+            currentListFileViewModel?.add(fileViewModel)
+        }
+
+        setTheGridViewOfCurrentFiles()
     }
 
     override fun onStart() {
         super.onStart()
-        getAllTheDirectoriesFromRootDirectory()
+        setCurrentArrayListFileViewModel()
     }
 }

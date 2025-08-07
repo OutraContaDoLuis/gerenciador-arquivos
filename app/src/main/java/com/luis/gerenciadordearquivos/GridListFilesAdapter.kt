@@ -8,12 +8,13 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import com.luis.gerenciadordearquivos.models.FileViewModel
 import java.io.File
 
-class GridListFilesAdapter(context: Context?, files: Array<File?>?): BaseAdapter() {
+class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>?): BaseAdapter() {
 
     private var context: Context? = null
-    private var files: Array<File?>? = null
+    private var files: ArrayList<FileViewModel?>? = ArrayList()
 
     init {
         this.context = context
@@ -48,7 +49,17 @@ class GridListFilesAdapter(context: Context?, files: Array<File?>?): BaseAdapter
         val txtFile = newConvertView?.findViewById<TextView>(R.id.txt_file)
 
         if (files != null) {
-            txtFile?.text = files!![position]?.name
+            val file = files!![position]
+
+            if (file!!.goBack) {
+                imgFile?.setImageResource(R.drawable.ic_baseline_drive_file_move_rtl_24)
+            } else if (file.file!!.isDirectory) {
+                imgFile?.setImageResource(R.drawable.ic_baseline_drive_file_move_24)
+            } else if (file.file!!.isFile) {
+                imgFile?.setImageResource(R.drawable.ic_baseline_insert_drive_file_24)
+            }
+
+            txtFile?.text = file.name
         }
 
         return newConvertView
