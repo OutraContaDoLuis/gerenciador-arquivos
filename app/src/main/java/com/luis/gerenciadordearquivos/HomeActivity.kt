@@ -15,7 +15,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.luis.gerenciadordearquivos.models.FileViewModel
 import java.io.File
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : BaseActivity() {
 
     private lateinit var gridFiles: GridView
     private var gridListFilesAdapter: GridListFilesAdapter? = null
@@ -25,7 +25,7 @@ class HomeActivity : AppCompatActivity() {
     private var currentListFileViewModel : ArrayList<FileViewModel?>? = ArrayList()
     private var fileHistory: ArrayList<File?>? = ArrayList()
 
-    private val tag = javaClass.name
+    private var tag : String = tagName()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,24 +46,34 @@ class HomeActivity : AppCompatActivity() {
         Log.v(tag, "Files in root directory: ${storageDirectory?.listFiles()}")
     }
 
+    private fun onClickListenerItemInGridViewFiles(position: Int) {
+        if (currentListFileViewModel != null && fileHistory != null) {
+            if (currentListFileViewModel!![position]?.file!!.isDirectory) {
+                currentFile = if (currentListFileViewModel!![position]!!.goBack) {
+                    fileHistory!!.removeAt(fileHistory!!.size - 1)
+                    fileHistory!![fileHistory!!.size - 1]
+                } else {
+                    fileHistory?.add(currentListFileViewModel!![position]?.file)
+                    currentListFileViewModel!![position]?.file
+                }
+            } else if (currentListFileViewModel!![position]?.file!!.isFile) {
+
+            }
+        }
+
+        Log.v(tag, fileHistory.toString())
+
+        currentFile?.listFiles()?.forEach { it ->
+            Log.v(tag, it.toString())
+        }
+    }
+
     private fun setTheGridViewOfCurrentFiles() {
         gridListFilesAdapter = GridListFilesAdapter(this, currentListFileViewModel)
         gridFiles.adapter = gridListFilesAdapter
 
         gridFiles.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            currentFile = if (currentListFileViewModel!![position]!!.goBack) {
-                fileHistory!!.removeAt(fileHistory!!.size - 1)
-                fileHistory!![fileHistory!!.size - 1]
-            } else {
-                fileHistory?.add(currentListFileViewModel!![position]?.file)
-                currentListFileViewModel!![position]?.file
-            }
-            Log.v(tag, fileHistory.toString())
-
-            currentFile?.listFiles()?.forEach { it ->
-                Log.v(tag, it.toString())
-            }
-
+            onClickListenerItemInGridViewFiles(position)
             setCurrentArrayListFileViewModel()
         }
     }
