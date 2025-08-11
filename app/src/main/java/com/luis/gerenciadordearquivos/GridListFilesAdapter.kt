@@ -11,10 +11,10 @@ import android.widget.TextView
 import com.luis.gerenciadordearquivos.models.FileViewModel
 import java.io.File
 
-class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>?): BaseAdapter() {
+class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>) : BaseAdapter() {
 
     private var context: Context? = null
-    private var files: ArrayList<FileViewModel?>? = ArrayList()
+    private var files: ArrayList<FileViewModel?> = ArrayList()
 
     init {
         this.context = context
@@ -24,7 +24,7 @@ class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>?)
     private var inflater: LayoutInflater? = null
 
     override fun getCount(): Int {
-        return files?.size!!
+        return files.size
     }
 
     override fun getItem(position: Int): Any? {
@@ -48,19 +48,23 @@ class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>?)
         val imgFile = newConvertView?.findViewById<ImageView>(R.id.img_file)
         val txtFile = newConvertView?.findViewById<TextView>(R.id.txt_file)
 
-        if (files != null) {
-            val file = files!![position]
+        val file = files[position]
 
-            if (file!!.goBack) {
-                imgFile?.setImageResource(R.drawable.ic_baseline_drive_file_move_rtl_24)
-            } else if (file.file!!.isDirectory) {
-                imgFile?.setImageResource(R.drawable.ic_baseline_drive_file_move_24)
-            } else if (file.file!!.isFile) {
-                imgFile?.setImageResource(R.drawable.ic_baseline_insert_drive_file_24)
+        if (file!!.goBack) {
+            imgFile?.setImageResource(R.drawable.folder)
+        } else if (file.file.isDirectory) {
+            imgFile?.setImageResource(R.drawable.folder)
+        } else if (file.file.isFile) {
+            if (file.name.endsWith(".pdf")) {
+                imgFile?.setImageResource(R.drawable.pdf)
+            } else if (file.name.endsWith(".jpeg")
+                || file.name.endsWith(".png")
+                || file.name.endsWith(".jpg")) {
+                imgFile?.setImageResource(R.drawable.image_asset)
             }
-
-            txtFile?.text = file.name
         }
+
+        txtFile?.text = file.name
 
         return newConvertView
     }

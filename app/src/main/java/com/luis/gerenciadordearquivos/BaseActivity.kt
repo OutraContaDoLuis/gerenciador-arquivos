@@ -1,6 +1,6 @@
 package com.luis.gerenciadordearquivos
 
-open class BaseActivity() : CheckPermissionsForApp() {
+open class BaseActivity() : ReadAndWriteMedia() {
 
     protected fun tagName() : String {
         return javaClass.name

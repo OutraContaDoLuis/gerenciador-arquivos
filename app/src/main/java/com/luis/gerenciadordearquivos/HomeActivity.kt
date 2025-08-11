@@ -1,29 +1,37 @@
 package com.luis.gerenciadordearquivos
 
+import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.AdapterView
 import android.widget.GridView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.luis.gerenciadordearquivos.models.FileViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 class HomeActivity : BaseActivity() {
 
-    private lateinit var gridFiles: GridView
-    private var gridListFilesAdapter: GridListFilesAdapter? = null
+    private lateinit var txtPath : TextView
+    private lateinit var listFileGridView : GridView
 
-    private var storageDirectory : File? = null
-    private var currentFile: File? = null
-    private var currentListFileViewModel : ArrayList<FileViewModel?>? = ArrayList()
-    private var fileHistory: ArrayList<File?>? = ArrayList()
+    private var storageDirectory : File = File("")
+    private var currentFile : File = File("")
+    private var listFileViewModel : ArrayList<FileViewModel?> = ArrayList()
 
     private var tag : String = tagName()
 
@@ -37,62 +45,68 @@ class HomeActivity : BaseActivity() {
             insets
         }
 
-        gridFiles = findViewById(R.id.grid_files)
-
+        txtPath = findViewById(R.id.txt_path)
+        listFileGridView = findViewById(R.id.grid_files)
         storageDirectory = Environment.getExternalStorageDirectory()
         currentFile = storageDirectory
-        fileHistory?.add(currentFile)
-        Log.v(tag, "Root directory: ${storageDirectory.toString()}")
-        Log.v(tag, "Files in root directory: ${storageDirectory?.listFiles()}")
+        Log.v(tag, "Root directory: $storageDirectory")
+        Log.v(tag, "Files in root directory: ${storageDirectory.listFiles()}")
+    }
+
+    private fun backToTheLastFileDirectory() {
+        val intRange =
+            ((currentFile.toString().length - 1) - currentFile.name.toString().length)..
+                    (currentFile.toString().length - 1)
+        val namePathWithoutFileOfCurrentFile = currentFile.toString().removeRange(intRange)
+        Log.v(tag, namePathWithoutFileOfCurrentFile)
+        currentFile = File(namePathWithoutFileOfCurrentFile)
+        setCurrentListFiles()
+    }
+
+    private fun goingToTheNextFileDirectory(file: File) {
+        currentFile = file
+        setCurrentListFiles()
     }
 
     private fun onClickListenerItemInGridViewFiles(position: Int) {
-        if (currentListFileViewModel != null && fileHistory != null) {
-            if (currentListFileViewModel!![position]?.file!!.isDirectory) {
-                currentFile = if (currentListFileViewModel!![position]!!.goBack) {
-                    fileHistory!!.removeAt(fileHistory!!.size - 1)
-                    fileHistory!![fileHistory!!.size - 1]
-                } else {
-                    fileHistory?.add(currentListFileViewModel!![position]?.file)
-                    currentListFileViewModel!![position]?.file
-                }
-            } else if (currentListFileViewModel!![position]?.file!!.isFile) {
+        val fileSelected = listFileViewModel[position]!!
 
-            }
+        if (fileSelected.goBack) {
+            backToTheLastFileDirectory()
         }
 
-        Log.v(tag, fileHistory.toString())
-
-        currentFile?.listFiles()?.forEach { it ->
-            Log.v(tag, it.toString())
+        if (fileSelected.file.isDirectory) {
+            goingToTheNextFileDirectory(fileSelected.file)
         }
     }
 
     private fun setTheGridViewOfCurrentFiles() {
-        gridListFilesAdapter = GridListFilesAdapter(this, currentListFileViewModel)
-        gridFiles.adapter = gridListFilesAdapter
+        val gridListFilesAdapter = GridListFilesAdapter(this, listFileViewModel)
+        listFileGridView.adapter = gridListFilesAdapter
 
-        gridFiles.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+        listFileGridView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             onClickListenerItemInGridViewFiles(position)
-            setCurrentArrayListFileViewModel()
         }
     }
 
-    private fun setCurrentArrayListFileViewModel() {
-        currentListFileViewModel = ArrayList()
-        if (currentFile != storageDirectory) {
-            val fileViewModelGoBack = FileViewModel()
-            fileViewModelGoBack.name = "..."
-            fileViewModelGoBack.goBack = true
+    private fun setCurrentListFiles() {
+        txtPath.text = currentFile.toString()
 
-            currentListFileViewModel?.add(fileViewModelGoBack)
+        listFileViewModel = ArrayList()
+        if (currentFile != storageDirectory) {
+            val goBackFileViewModel = FileViewModel()
+            goBackFileViewModel.name = "..."
+            goBackFileViewModel.file = File("")
+            goBackFileViewModel.goBack = true
+            listFileViewModel.add(goBackFileViewModel)
         }
 
-        currentFile?.listFiles()?.forEach {it ->
-            var fileViewModel = FileViewModel()
+        currentFile.listFiles()?.forEach { it ->
+            val fileViewModel = FileViewModel()
             fileViewModel.name = it.name
             fileViewModel.file = it
-            currentListFileViewModel?.add(fileViewModel)
+            fileViewModel.goBack = false
+            listFileViewModel.add(fileViewModel)
         }
 
         setTheGridViewOfCurrentFiles()
@@ -100,6 +114,13 @@ class HomeActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        setCurrentArrayListFileViewModel()
+        setCurrentListFiles()
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        if (currentFile != storageDirectory) {
+            backToTheLastFileDirectory()
+        }
     }
 }
