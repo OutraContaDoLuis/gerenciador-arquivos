@@ -15,15 +15,29 @@ import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.luis.gerenciadordearquivos.BaseActivity
+import com.luis.gerenciadordearquivos.GridHomeButtonsAdapter
 import com.luis.gerenciadordearquivos.GridListFilesAdapter
 import com.luis.gerenciadordearquivos.R
 import com.luis.gerenciadordearquivos.models.FileViewModel
+import com.luis.gerenciadordearquivos.models.HomeButtonViewModel
 import java.io.File
 
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var toolbar : Toolbar
     private lateinit var btnCardLocalStorage : CardView
+    private lateinit var gridViewButtons : GridView
+
+    private var listOfHomeButtonViewModel : ArrayList<HomeButtonViewModel?> = ArrayList()
+    private val listOfNameHomeButtonViewModel : ArrayList<String> = arrayListOf(
+        "Imagens"
+    )
+    private val listOfDrawableHomeButtonViewModel : ArrayList<Int> = arrayListOf(
+        R.drawable.ic_baseline_image_24
+    )
+    private val listOfOnClickHomeButtonViewModel : ArrayList<AppCompatActivity> = arrayListOf(
+        LocalStorageActivity()
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,15 +51,46 @@ class HomeActivity : AppCompatActivity() {
 
         toolbar = findViewById(R.id.toolbar)
         btnCardLocalStorage = findViewById(R.id.btn_card_local_storage)
+        gridViewButtons = findViewById(R.id.grid_buttons)
     }
 
-    private fun goToFileExplorerActivity() {
-        val intent = Intent(this, LocalStorageActivity::class.java)
+    private fun goToActivity(activity : AppCompatActivity) {
+        val intent = Intent(this, activity::class.java)
         startActivity(intent)
+    }
+
+    private fun setTheArrayListOfHomeButtonViewModel() {
+        var size = listOfNameHomeButtonViewModel.size - 1
+        while (size >= 0) {
+            val homeButtonViewModel = HomeButtonViewModel()
+            homeButtonViewModel.name = listOfNameHomeButtonViewModel[size].toString()
+            homeButtonViewModel.drawable = listOfDrawableHomeButtonViewModel[size]
+            listOfHomeButtonViewModel.add(homeButtonViewModel)
+            size = size - 1
+        }
+    }
+
+    private fun onClickListenerItemInGridViewButtons(position : Int) {
+        val activitySelection = listOfOnClickHomeButtonViewModel[position]
+        goToActivity(activitySelection)
+    }
+
+    private fun setGridViewButtons() {
+        setTheArrayListOfHomeButtonViewModel()
+
+        val gridHomeButtonsAdapter = GridHomeButtonsAdapter(this, listOfHomeButtonViewModel)
+        gridViewButtons.adapter = gridHomeButtonsAdapter
+
+        gridViewButtons.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            onClickListenerItemInGridViewButtons(position)
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        btnCardLocalStorage.setOnClickListener { goToFileExplorerActivity() }
+        btnCardLocalStorage.setOnClickListener { goToActivity(LocalStorageActivity()) }
+        
+        if (listOfHomeButtonViewModel.size != listOfNameHomeButtonViewModel.size)
+            setGridViewButtons()
     }
 }

@@ -9,7 +9,6 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.luis.gerenciadordearquivos.models.FileViewModel
-import java.io.File
 
 class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>) : BaseAdapter() {
 
@@ -45,8 +44,8 @@ class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>) 
         if (newConvertView == null)
             newConvertView = inflater?.inflate(R.layout.file_item, null)
 
-        val imgFile = newConvertView?.findViewById<ImageView>(R.id.img_file)
-        val txtFile = newConvertView?.findViewById<TextView>(R.id.txt_file)
+        val imgFile = newConvertView?.findViewById<ImageView>(R.id.img_button)
+        val txtFile = newConvertView?.findViewById<TextView>(R.id.txt_button)
 
         val file = files[position]
 
