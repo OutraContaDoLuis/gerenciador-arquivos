@@ -4,4 +4,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="primaryColor">#8BD05B</color>
+    <color name="middleColor">#5CD184</color>
+    <color name="secondColor">#5CD15C</color>
+    <color name="homeCardBackgroundColor">#DAE4F4</color>
 </resources>

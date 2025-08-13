@@ -1,30 +1,22 @@
-package com.luis.gerenciadordearquivos
+package com.luis.gerenciadordearquivos.activitys
 
 import android.annotation.SuppressLint
-import android.net.Uri
-import android.os.Build
-import android.os.Build.VERSION
 import android.os.Bundle
 import android.os.Environment
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.AdapterView
 import android.widget.GridView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.luis.gerenciadordearquivos.BaseActivity
+import com.luis.gerenciadordearquivos.GridListFilesAdapter
+import com.luis.gerenciadordearquivos.R
 import com.luis.gerenciadordearquivos.models.FileViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import java.io.File
 
-class HomeActivity : BaseActivity() {
+class LocalStorageActivity : BaseActivity() {
 
     private lateinit var txtPath : TextView
     private lateinit var listFileGridView : GridView
@@ -38,7 +30,7 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_home)
+        setContentView(R.layout.activity_local_storage)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -47,8 +39,10 @@ class HomeActivity : BaseActivity() {
 
         txtPath = findViewById(R.id.txt_path)
         listFileGridView = findViewById(R.id.grid_files)
+
         storageDirectory = Environment.getExternalStorageDirectory()
         currentFile = storageDirectory
+
         Log.v(tag, "Root directory: $storageDirectory")
         Log.v(tag, "Files in root directory: ${storageDirectory.listFiles()}")
     }
@@ -121,6 +115,9 @@ class HomeActivity : BaseActivity() {
     override fun onBackPressed() {
         if (currentFile != storageDirectory) {
             backToTheLastFileDirectory()
+            return
         }
+
+        super.onBackPressed()
     }
 }

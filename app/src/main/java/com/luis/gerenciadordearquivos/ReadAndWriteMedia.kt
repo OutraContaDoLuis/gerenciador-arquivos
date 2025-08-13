@@ -39,6 +39,10 @@ open class ReadAndWriteMedia() : CheckPermissionsForApp() {
         }
     }
 
+    protected fun readImage() {
+        
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == myRequestCode && resultCode == RESULT_OK) {

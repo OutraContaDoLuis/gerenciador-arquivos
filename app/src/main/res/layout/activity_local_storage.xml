@@ -5,9 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:backgroundTint="@color/white"
-    tools:context=".activitys.HomeActivity">
+    tools:context=".activitys.LocalStorageActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -26,8 +24,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:navigationIcon="@drawable/ic_baseline_menu_24"
-                android:title="Pagina Inicial"
+                android:title="Local Storage"
                 android:titleTextColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -47,62 +44,24 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <TextView
+        android:id="@+id/txt_path"
         android:layout_width="0dp"
-        android:layout_height="180dp"
-        android:background="@drawable/gradient_background"
-        android:gravity="center"
-        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:text="TextView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/btn_card_local_storage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:cardElevation="12dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/homeCardBackgroundColor"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="32dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="Armaz. Interno"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txt_storage_info"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="Example"
-                    android:textAlignment="center" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
     <GridView
-        android:id="@+id/grid_buttons"
-        android:layout_width="match_parent"
+        android:id="@+id/grid_files"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:numColumns="5"
+        android:numColumns="3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/txt_path" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
