@@ -5,9 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:backgroundTint="@color/white"
-    tools:context=".activitys.LocalStorageActivity">
+    tools:context=".activitys.ImageStorageActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -28,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/gradient_background"
                 android:navigationIcon="@drawable/ic_baseline_menu_24"
-                android:title="Local Storage"
+                android:title="Imagens"
                 android:titleTextColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -48,31 +46,25 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <Button
+        android:id="@+id/btn_add_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Adicionar Imagem"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
+    <GridView
+        android:id="@+id/images_grid"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:orientation="vertical"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
-
-        <TextView
-            android:id="@+id/txt_path"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:text="TextView" />
-
-        <GridView
-            android:id="@+id/grid_files"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:numColumns="4"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/btn_add_image" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

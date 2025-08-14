@@ -18,6 +18,8 @@ import java.io.File
 
 class LocalStorageActivity : BaseActivity() {
 
+    private var textExtra : String = ""
+
     private lateinit var txtPath : TextView
     private lateinit var listFileGridView : GridView
 

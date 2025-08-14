@@ -8,4 +8,8 @@
     <color name="secondColor">#5CD15C</color>
     <color name="homeCardBackgroundColor">#DAE4F4</color>
     <color name="purpleIconColor">#8863D3</color>
+    <color name="blueIconColor">#78BEF4</color>
+    <color name="darkBlueIconColor">#5262B1</color>
+    <color name="orangeIconColor">#FAB73E</color>
+    <color name="greenIconColor">#6FC372</color>
 </resources>

@@ -30,13 +30,16 @@ class HomeActivity : AppCompatActivity() {
 
     private var listOfHomeButtonViewModel : ArrayList<HomeButtonViewModel?> = ArrayList()
     private val listOfNameHomeButtonViewModel : ArrayList<String> = arrayListOf(
-        "Imagens"
+        "Imagens", "Videos", "Arquivos", "Audio", "Apps"
     )
     private val listOfDrawableHomeButtonViewModel : ArrayList<Int> = arrayListOf(
-        R.drawable.ic_baseline_image_24
+        R.drawable.ic_baseline_image_24, R.drawable.ic_baseline_video_file_24,
+        R.drawable.ic_baseline_insert_drive_file_24, R.drawable.ic_baseline_audio_file_24,
+        R.drawable.ic_baseline_apps_24
     )
     private val listOfOnClickHomeButtonViewModel : ArrayList<AppCompatActivity> = arrayListOf(
-        LocalStorageActivity()
+        LocalStorageActivity(), LocalStorageActivity(), LocalStorageActivity(),
+        LocalStorageActivity(), LocalStorageActivity()
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +71,8 @@ class HomeActivity : AppCompatActivity() {
             listOfHomeButtonViewModel.add(homeButtonViewModel)
             size = size - 1
         }
+        listOfHomeButtonViewModel =
+            listOfHomeButtonViewModel.reversed() as ArrayList<HomeButtonViewModel?>
     }
 
     private fun onClickListenerItemInGridViewButtons(position : Int) {
@@ -75,7 +80,7 @@ class HomeActivity : AppCompatActivity() {
         goToActivity(activitySelection)
     }
 
-    private fun setGridViewButtons() {
+    private fun setTheAdapterForGridViewButtons() {
         setTheArrayListOfHomeButtonViewModel()
 
         val gridHomeButtonsAdapter = GridHomeButtonsAdapter(this, listOfHomeButtonViewModel)
@@ -89,8 +94,8 @@ class HomeActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         btnCardLocalStorage.setOnClickListener { goToActivity(LocalStorageActivity()) }
-        
+
         if (listOfHomeButtonViewModel.size != listOfNameHomeButtonViewModel.size)
-            setGridViewButtons()
+            setTheAdapterForGridViewButtons()
     }
 }
