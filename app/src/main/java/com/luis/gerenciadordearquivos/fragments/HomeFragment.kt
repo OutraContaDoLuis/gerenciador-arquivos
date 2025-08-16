@@ -8,14 +8,14 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.GridView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import com.luis.gerenciadordearquivos.GridHomeButtonsAdapter
 import com.luis.gerenciadordearquivos.R
-import com.luis.gerenciadordearquivos.activitys.ImageStorageActivity
-import com.luis.gerenciadordearquivos.activitys.LocalStorageActivity
 import com.luis.gerenciadordearquivos.models.HomeButtonViewModel
 
 class HomeFragment : Fragment() {
 
+    private lateinit var cardInfoStorage : CardView
     private lateinit var gridViewButtons : GridView
 
     private var listOfHomeButtonViewModel : ArrayList<HomeButtonViewModel?> = ArrayList()
@@ -43,6 +43,7 @@ class HomeFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
+        cardInfoStorage = view.findViewById(R.id.card_info_storage)
         gridViewButtons = view.findViewById(R.id.grid_buttons)
 
         return view
@@ -83,6 +84,8 @@ class HomeFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        cardInfoStorage.setOnClickListener { goToFragment(LocalStorageFragment()) }
+
         if (listOfHomeButtonViewModel.size != listOfNameHomeButtonViewModel.size)
             setTheAdapterForGridViewButtons()
     }

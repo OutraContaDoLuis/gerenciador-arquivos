@@ -1,24 +1,23 @@
-package com.luis.gerenciadordearquivos.activitys
+package com.luis.gerenciadordearquivos.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.GridView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.luis.gerenciadordearquivos.BaseActivity
 import com.luis.gerenciadordearquivos.GridListFilesAdapter
+import com.luis.gerenciadordearquivos.IOnBackPressed
 import com.luis.gerenciadordearquivos.R
 import com.luis.gerenciadordearquivos.models.FileViewModel
 import java.io.File
 
-class LocalStorageActivity : BaseActivity() {
-
-    private var textExtra : String = ""
+class LocalStorageFragment : Fragment(), IOnBackPressed {
 
     private lateinit var txtPath : TextView
     private lateinit var listFileGridView : GridView
@@ -27,26 +26,24 @@ class LocalStorageActivity : BaseActivity() {
     private var currentFile : File = File("")
     private var listFileViewModel : ArrayList<FileViewModel?> = ArrayList()
 
-    private var tag : String = tagName()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_local_storage)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        arguments?.let {}
+    }
 
-        txtPath = findViewById(R.id.txt_path)
-        listFileGridView = findViewById(R.id.grid_files)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_local_storage, container, false)
+
+        txtPath = view.findViewById(R.id.txt_path)
+        listFileGridView = view.findViewById(R.id.grid_file)
 
         storageDirectory = Environment.getExternalStorageDirectory()
         currentFile = storageDirectory
 
-        Log.v(tag, "Root directory: $storageDirectory")
-        Log.v(tag, "Files in root directory: ${storageDirectory.listFiles()}")
+        return view
     }
 
     private fun backToTheLastFileDirectory() {
@@ -77,7 +74,7 @@ class LocalStorageActivity : BaseActivity() {
     }
 
     private fun setTheGridViewOfCurrentFiles() {
-        val gridListFilesAdapter = GridListFilesAdapter(this, listFileViewModel)
+        val gridListFilesAdapter = GridListFilesAdapter(context, listFileViewModel)
         listFileGridView.adapter = gridListFilesAdapter
 
         listFileGridView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
@@ -113,13 +110,10 @@ class LocalStorageActivity : BaseActivity() {
         setCurrentListFiles()
     }
 
-    @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        if (currentFile != storageDirectory) {
-            backToTheLastFileDirectory()
-            return
-        }
+    override fun backPressed() {
+        if (currentFile == storageDirectory)
+            fragmentManager?.beginTransaction()?.replace(R.id.main_container, HomeFragment())?.commit()
 
-        super.onBackPressed()
+        backToTheLastFileDirectory()
     }
 }
