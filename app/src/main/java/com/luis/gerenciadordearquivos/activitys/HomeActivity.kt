@@ -50,11 +50,16 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onStart()
     }
 
+    private fun transitionToFragment(fragment : Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.main_container, fragment)
+            .commit()
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> {
-
-            }
+            R.id.nav_home -> transitionToFragment(HomeFragment())
         }
 
         drawerLayout.closeDrawer(GravityCompat.START)

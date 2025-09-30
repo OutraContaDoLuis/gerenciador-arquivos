@@ -1,5 +1,6 @@
 package com.luis.gerenciadordearquivos.fragments
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -32,6 +33,8 @@ class HomeFragment : Fragment() {
         AudioStorageFragment(), AppsFragment()
     )
 
+    private lateinit var currentContext : Context
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {}
@@ -45,6 +48,8 @@ class HomeFragment : Fragment() {
 
         cardInfoStorage = view.findViewById(R.id.card_info_storage)
         gridViewButtons = view.findViewById(R.id.grid_buttons)
+
+        currentContext = requireContext()
 
         return view
     }

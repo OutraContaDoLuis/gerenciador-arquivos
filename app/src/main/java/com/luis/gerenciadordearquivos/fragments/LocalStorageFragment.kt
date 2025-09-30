@@ -1,9 +1,15 @@
 package com.luis.gerenciadordearquivos.fragments
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +17,18 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.GridView
 import android.widget.TextView
+import androidx.core.net.toUri
+import com.luis.gerenciadordearquivos.DecodeResAmpler
 import com.luis.gerenciadordearquivos.GridListFilesAdapter
 import com.luis.gerenciadordearquivos.IOnBackPressed
 import com.luis.gerenciadordearquivos.R
 import com.luis.gerenciadordearquivos.models.FileViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 class LocalStorageFragment : Fragment(), IOnBackPressed {
@@ -25,6 +39,8 @@ class LocalStorageFragment : Fragment(), IOnBackPressed {
     private var storageDirectory : File = File("")
     private var currentFile : File = File("")
     private var listFileViewModel : ArrayList<FileViewModel?> = ArrayList()
+
+    private val tag = javaClass.name
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +58,8 @@ class LocalStorageFragment : Fragment(), IOnBackPressed {
 
         storageDirectory = Environment.getExternalStorageDirectory()
         currentFile = storageDirectory
+
+        Log.v(tag, currentFile.toString())
 
         return view
     }
@@ -62,19 +80,22 @@ class LocalStorageFragment : Fragment(), IOnBackPressed {
     }
 
     private fun onClickListenerItemInGridViewFiles(position: Int) {
-        val fileSelected = listFileViewModel[position]!!
+        val fileSelected = currentFile.listFiles()
 
-        if (fileSelected.goBack) {
-            backToTheLastFileDirectory()
-        }
-
-        if (fileSelected.file.isDirectory) {
-            goingToTheNextFileDirectory(fileSelected.file)
+        if (fileSelected!![position].isDirectory) {
+            goingToTheNextFileDirectory(fileSelected[position])
         }
     }
 
     private fun setTheGridViewOfCurrentFiles() {
-        val gridListFilesAdapter = GridListFilesAdapter(context, listFileViewModel)
+
+        val files : ArrayList<File> = ArrayList<File>()
+
+        currentFile.listFiles()?.forEach {it ->
+            files.add(it)
+        }
+
+        val gridListFilesAdapter = GridListFilesAdapter(context, files)
         listFileGridView.adapter = gridListFilesAdapter
 
         listFileGridView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
@@ -85,26 +106,8 @@ class LocalStorageFragment : Fragment(), IOnBackPressed {
     private fun setCurrentListFiles() {
         txtPath.text = currentFile.toString()
 
-        listFileViewModel = ArrayList()
-        if (currentFile != storageDirectory) {
-            val goBackFileViewModel = FileViewModel()
-            goBackFileViewModel.name = "..."
-            goBackFileViewModel.file = File("")
-            goBackFileViewModel.goBack = true
-            listFileViewModel.add(goBackFileViewModel)
-        }
-
-        currentFile.listFiles()?.forEach { it ->
-            val fileViewModel = FileViewModel()
-            fileViewModel.name = it.name
-            fileViewModel.file = it
-            fileViewModel.goBack = false
-            listFileViewModel.add(fileViewModel)
-        }
-
         setTheGridViewOfCurrentFiles()
     }
-
     override fun onStart() {
         super.onStart()
         setCurrentListFiles()
