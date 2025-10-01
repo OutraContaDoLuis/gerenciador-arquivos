@@ -29,10 +29,10 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.sqrt
 
-class GridListFilesAdapter(context: Context?, files: ArrayList<File>) : BaseAdapter() {
+class GridListFilesAdapter(context: Context?, files: ArrayList<FileViewModel?>) : BaseAdapter() {
 
     private var context: Context? = null
-    private var files: ArrayList<File> = ArrayList<File>()
+    private var files: ArrayList<FileViewModel?> = ArrayList<FileViewModel?>()
 
     init {
         this.context = context
@@ -73,38 +73,38 @@ class GridListFilesAdapter(context: Context?, files: ArrayList<File>) : BaseAdap
 
         val currentFile = files[position]
 
-        if (currentFile.isDirectory) {
-            imgFile?.setImageResource(R.drawable.folder)
-        } else {
-            if (currentFile.isFile &&
-                (currentFile.name.endsWith(".png")
-                || currentFile.name.endsWith(".jpg")
-                || currentFile.name.endsWith(".jpeg"))) {
-                imgFile?.setImageResource(R.drawable.image_asset)
+        if (currentFile != null) {
+            if (currentFile.file.isDirectory || currentFile.goBack) {
+                imgFile?.setImageResource(R.drawable.folder)
+            } else {
+                if (currentFile.file.isFile &&
+                    (currentFile.name.toString().endsWith(".png")
+                        || currentFile.name.toString().endsWith(".jpg")
+                        || currentFile.name.toString().endsWith(".jpeg"))) {
+                    imgFile?.setImageResource(R.drawable.image_asset)
 
-                CoroutineScope(Dispatchers.Main).launch {
-                    val image = async {
-                        getImageBitmap(currentFile, currentFile.toUri())
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val image = async {
+                            getImageBitmap(currentFile.file.toUri())
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            imgFile?.setImageBitmap(image.await())
+                        }
                     }
-
-                    imgFile?.setImageBitmap(image.await())
                 }
             }
         }
 
-        txtFile?.text = currentFile.name
+        txtFile?.text = currentFile?.name
 
         return newConvertView
     }
 
-    private fun getImageBitmap(file: File, uri: Uri?) : Bitmap {
+    private fun getImageBitmap(uri: Uri?) : Bitmap {
         val source = ImageDecoder.createSource(context?.contentResolver!!, uri!!)
         val bitmap = ImageDecoder.decodeBitmap(source)
-        val fileOutStream = FileOutputStream(file)
         val resizeBitmap = resizeToTargetSize(bitmap)
-        resizeBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutStream)
-        fileOutStream.flush()
-        fileOutStream.close()
         return resizeBitmap
     }
 

@@ -17,11 +17,14 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.GridView
 import android.widget.TextView
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.luis.gerenciadordearquivos.DecodeResAmpler
 import com.luis.gerenciadordearquivos.GridListFilesAdapter
 import com.luis.gerenciadordearquivos.IOnBackPressed
 import com.luis.gerenciadordearquivos.R
+import com.luis.gerenciadordearquivos.RequestFileCode
+import com.luis.gerenciadordearquivos.activitys.HomeActivity
 import com.luis.gerenciadordearquivos.models.FileViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class LocalStorageFragment : Fragment(), IOnBackPressed {
 
     private lateinit var txtPath : TextView
@@ -80,22 +84,28 @@ class LocalStorageFragment : Fragment(), IOnBackPressed {
     }
 
     private fun onClickListenerItemInGridViewFiles(position: Int) {
-        val fileSelected = currentFile.listFiles()
+        val fileSelected = listFileViewModel[position]
 
-        if (fileSelected!![position].isDirectory) {
-            goingToTheNextFileDirectory(fileSelected[position])
+        if (fileSelected == null)
+            return
+
+        if (fileSelected.file.isDirectory)
+            goingToTheNextFileDirectory(fileSelected.file)
+
+        if (fileSelected.goBack)
+            backToTheLastFileDirectory()
+
+        if (fileSelected.name.toString().endsWith(".pdf")) {
+            val uriPdf = FileProvider.getUriForFile(context,
+                context?.applicationContext?.packageName + ".provider",
+                fileSelected.file)
+            (context as? HomeActivity)?.openPdfFile(uriPdf)
         }
+
     }
 
     private fun setTheGridViewOfCurrentFiles() {
-
-        val files : ArrayList<File> = ArrayList<File>()
-
-        currentFile.listFiles()?.forEach {it ->
-            files.add(it)
-        }
-
-        val gridListFilesAdapter = GridListFilesAdapter(context, files)
+        val gridListFilesAdapter = GridListFilesAdapter(context, listFileViewModel)
         listFileGridView.adapter = gridListFilesAdapter
 
         listFileGridView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
@@ -105,6 +115,19 @@ class LocalStorageFragment : Fragment(), IOnBackPressed {
 
     private fun setCurrentListFiles() {
         txtPath.text = currentFile.toString()
+
+        listFileViewModel.clear()
+
+        val files : ArrayList<FileViewModel?> = ArrayList<FileViewModel?>()
+
+        currentFile.listFiles()?.forEach { it ->
+            var fileViewModel = FileViewModel()
+            fileViewModel.file = it
+            fileViewModel.name = it.name
+            files.add(fileViewModel)
+        }
+
+        listFileViewModel = files
 
         setTheGridViewOfCurrentFiles()
     }

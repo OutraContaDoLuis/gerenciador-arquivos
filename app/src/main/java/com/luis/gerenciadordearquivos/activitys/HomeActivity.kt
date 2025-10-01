@@ -1,31 +1,39 @@
 package com.luis.gerenciadordearquivos.activitys
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.util.Log
-import android.view.MenuItem
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.widget.LinearLayout
+import android.widget.PopupWindow
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import com.google.android.material.navigation.NavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.luis.gerenciadordearquivos.BaseActivity
 import com.luis.gerenciadordearquivos.IOnBackPressed
 import com.luis.gerenciadordearquivos.R
-import com.luis.gerenciadordearquivos.fragments.HomeFragment
-import com.luis.gerenciadordearquivos.fragments.ImageStorageFragment
-import com.luis.gerenciadordearquivos.fragments.LocalStorageFragment
+import com.luis.gerenciadordearquivos.RequestFileCode
+import kotlin.math.roundToInt
 
-class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class HomeActivity : BaseActivity() {
 
     private lateinit var toolbar : Toolbar
-    private lateinit var drawerLayout : DrawerLayout
+    private lateinit var btnPopupMenu : FloatingActionButton
 
     private val tag = javaClass.name
 
+    @SuppressLint("InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -37,13 +45,33 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
         toolbar = findViewById(R.id.toolbar)
-        drawerLayout = findViewById(R.id.main)
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
-        val toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
-            R.string.close_nav)
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        btnPopupMenu = findViewById(R.id.btn_popup_menu)
+
+        btnPopupMenu.setOnClickListener { it ->
+            val popupMenu = PopupMenu(this@HomeActivity, it)
+            popupMenu.setOnMenuItemClickListener { item ->
+                when(item.itemId) {
+                    R.id.create_new_file_directory -> {
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            try {
+                val fieldPopup = PopupMenu::class.java.getDeclaredField("mPopup")
+                fieldPopup.isAccessible = true
+                val mPopup = fieldPopup.get(popupMenu)
+                mPopup.javaClass
+                    .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+                    .invoke(mPopup, true)
+            } catch (e: Exception) {
+                Log.e(tag, "Error showing menu icons.", e)
+            }
+
+            popupMenu.inflate(R.menu.popup_menu)
+            popupMenu.show()
+        }
     }
 
     override fun onStart() {
@@ -55,15 +83,6 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .beginTransaction()
             .replace(R.id.main_container, fragment)
             .commit()
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_home -> transitionToFragment(HomeFragment())
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START)
-        return true
     }
 
     private fun onBackPressedFragmentEvents() : Boolean {
@@ -83,4 +102,18 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             super.onBackPressed()
         }
     }
+
+    fun openPdfFile(uri : Uri?) {
+        val target = Intent(Intent.ACTION_VIEW)
+        target.setDataAndType(uri, "application/pdf")
+        target.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+        val intent = Intent.createChooser(target, "Open PDF File")
+        try {
+            startActivityForResult(intent, 2)
+        } catch (e: ActivityNotFoundException) {
+            Log.e(tag, "Activity not founded", e)
+        }
+    }
+
 }
